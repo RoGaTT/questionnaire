@@ -1,4 +1,4 @@
 // eslint-disable-next-line
 export const ROUTES = {
-  HOME: '/',
+  HOME: '/:id?',
 };

@@ -1,12 +1,14 @@
+import React, { FC } from 'react';
+import '@/assets/reset.scss';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import { Helmet } from 'react-helmet-async';
 import { Route, Switch } from 'react-router-dom';
-import React, { FC, lazy, Suspense } from 'react';
 
 import { ROUTES } from '@/constants/routes';
 import { Layout } from './Layout';
 
-const HomePage = lazy(() => import('./Home'));
-const NotFoundPage = lazy(() => import('./NotFound'));
+import HomePage from './Home';
+import NotFoundPage from './NotFound';
 
 const Home: FC = () => (
   <>
@@ -19,21 +21,11 @@ const Home: FC = () => (
       />
     </Helmet>
     <Layout>
-      <Suspense fallback={<span>adasdas</span>}>
-        <Switch>
-          <Route path={ROUTES.HOME} exact component={HomePage} />
-          <Route path="*" component={NotFoundPage} />
-        </Switch>
-      </Suspense>
+      <Switch>
+        <Route path={ROUTES.HOME} exact component={HomePage} />
+        <Route path="*" exact component={NotFoundPage} />
+      </Switch>
     </Layout>
-    <div
-      id="portal-root"
-      style={{
-        width: 0,
-        height: 0,
-        visibility: 'hidden',
-      }}
-    />
   </>
 );
 
