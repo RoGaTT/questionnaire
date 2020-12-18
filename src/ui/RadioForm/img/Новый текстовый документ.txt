@@ -1,0 +1,16 @@
+$buttons: (
+        "red": red,
+        "orange": orange,
+        "yellow": yellow,
+        "green": green
+    );
+    @each $class, $color in $buttons {
+        &.#{$class} {
+            & > label {
+                border-color: $color;
+            }
+            & > input:checked ~ label::after {
+                background-color: $color;
+            }
+        }
+    }

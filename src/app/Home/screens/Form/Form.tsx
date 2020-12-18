@@ -1,5 +1,5 @@
 import React, {
-  FC, useCallback, useState,
+  FC, useRef, useCallback, useState,
 } from 'react';
 import classes from './Form.module.scss';
 
@@ -15,6 +15,8 @@ interface IProps {
 }
 
 const Form: FC<IProps> = ({ goNext }) => {
+  const formEl = useRef<HTMLFormElement>(null);
+
   const [data, setData] = useState<DataInterface>({
     name: '',
     lastname: '',
@@ -26,7 +28,7 @@ const Form: FC<IProps> = ({ goNext }) => {
   const handleIsFormValid = useCallback(isFormValid, [setData, data]);
 
   return (
-    <div className={classes.root}>
+    <form ref={formEl} className={classes.root} onSubmit={(e) => e.preventDefault()}>
       <div className={classes.title}>
         <h5>Личные данные</h5>
         <p>Введите свои контактные данные</p>
@@ -34,32 +36,43 @@ const Form: FC<IProps> = ({ goNext }) => {
       <div className={classes.form}>
         <label className={classes.field}>
           <span>Фамилия</span>
-          <input type="text" value={data.lastname} onChange={handleOnChange('lastname')} />
+          <input type="text" required value={data.lastname} onChange={handleOnChange('lastname')} />
         </label>
         <label className={classes.field}>
           <span>Имя</span>
-          <input type="text" value={data.name} onChange={handleOnChange('name')} />
+          <input type="text" required value={data.name} onChange={handleOnChange('name')} />
         </label>
         <label className={classes.field}>
           <span>Отчество</span>
-          <input type="text" value={data.middlename} onChange={handleOnChange('middlename')} />
+          <input type="text" required value={data.middlename} onChange={handleOnChange('middlename')} />
         </label>
         <label className={classes.field}>
           <span>E-Mail</span>
-          <input type="text" value={data.email} onChange={handleOnChange('email')} />
+          <input type="email" required value={data.email} onChange={handleOnChange('email')} />
         </label>
       </div>
       <div className={classes.nextButton}>
         <button
           type="button"
           disabled={handleIsFormValid()}
-          onClick={() => goNext()}
+          onClick={() => {
+            if (validate()) {
+              goNext(data);
+            }
+          }}
         >
           Дальше
         </button>
       </div>
-    </div>
+    </form>
   );
+
+  function validate() {
+    if (formEl && formEl.current) {
+      return formEl.current.reportValidity();
+    }
+    return false;
+  }
 
   function onChange(field: string) {
     return (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,6 +80,7 @@ const Form: FC<IProps> = ({ goNext }) => {
         ...data,
         [field]: e.target.value,
       });
+      validate();
     };
   }
 
