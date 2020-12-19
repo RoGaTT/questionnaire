@@ -1,19 +1,26 @@
 /* eslint-disable max-len */
-import React, { FC, useState } from 'react';
+import React, { FC, useCallback, useState } from 'react';
 import classes from './Home.module.scss';
 
-import DescriptionScreen from './screens/Description';
+import FinalScreen from './screens/Final';
 import FormScreen from './screens/Form';
 import TestScreen from './screens/Test';
 
 enum ScreenEnum {
-  Description = 'description',
+  Final = 'description',
   Form = 'form',
   Test = 'test',
 }
 
 const Home: FC = () => {
-  const [screenName, setScreen] = useState<ScreenEnum>(ScreenEnum.Form);// тут менять
+  const [screenName, setScreen] = useState<ScreenEnum>(ScreenEnum.Form);
+
+  const handleOnSubmit = useCallback((answers: object) => {
+    const userDataJSON = localStorage.getItem('userData');
+    const answersJSON = localStorage.getItem('answers');
+    console.log(userDataJSON, answersJSON);
+    setScreen(ScreenEnum.Final);
+  }, []);
 
   return (
     <div className="container">
@@ -30,15 +37,13 @@ const Home: FC = () => {
           }
           {
             screenName === ScreenEnum.Test && (
-            <TestScreen onSubmit={(answers: number[]) => {
-              console.log(answers);
-              setScreen(ScreenEnum.Description);
-            }}
-            />
+            <TestScreen onSubmit={handleOnSubmit} />
             )
           }
           {
-            screenName === ScreenEnum.Description && (<DescriptionScreen goNext={() => console.log('Ответ сохранен')} />)
+            screenName === ScreenEnum.Final && (
+              <FinalScreen />
+            )
           }
         </div>
       </div>

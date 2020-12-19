@@ -1,12 +1,8 @@
 /* eslint-disable max-len */
 import React, { FC } from 'react';
-import classes from './Description.module.scss';
+import classes from './Final.module.scss';
 
-interface IProps {
-  goNext: Function;
-}
-
-const Description: FC<IProps> = ({ goNext }) => {
+const Final: FC = () => {
   console.log('object');
   return (
     <div className={classes.root}>
@@ -17,4 +13,4 @@ const Description: FC<IProps> = ({ goNext }) => {
   );
 };
 
-export default Description;
+export default Final;

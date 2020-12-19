@@ -1,5 +1,5 @@
 import React, {
-  FC, useRef, useCallback, useState,
+  FC, useRef, useCallback, useState, useEffect,
 } from 'react';
 import classes from './Form.module.scss';
 
@@ -23,6 +23,15 @@ const Form: FC<IProps> = ({ goNext }) => {
     middlename: '',
     email: '',
   });
+
+  useEffect(() => {
+    const userDataJSON = localStorage.getItem('userData');
+    if (userDataJSON) setData(JSON.parse(userDataJSON));
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('userData', JSON.stringify(data));
+  }, [data]);
 
   const handleOnChange = useCallback(onChange, [setData, data]);
   const handleIsFormValid = useCallback(isFormValid, [setData, data]);

@@ -6,21 +6,19 @@ type IProps = {
   name: string;
   id: string;
   className?: string;
-  value: number;
   onChange: Function;
+  checked: boolean;
   answer?: string;
 }
 
 const RadioButton: FC<IProps> = ({
-  className, id, name, value, onChange, answer
+  className, id, name, onChange, answer, checked,
 }) => (
   <div className={className}>
     <label htmlFor={id}>
-      <input onChange={() => onChange(value)} value={value} id={id} type="radio" name={name} />
-      <span></span>
-      {answer &&
-        <b>{ answer }</b>
-      }
+      <input onChange={() => onChange()} checked={checked} id={id} type="radio" name={name} />
+      <span />
+      {answer && <p>{ answer }</p>}
     </label>
   </div>
 );

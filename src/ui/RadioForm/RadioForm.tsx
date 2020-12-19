@@ -1,12 +1,15 @@
-import React, { FC } from 'react';
-import classes from './RadioForm.module.scss';
+/* eslint-disable react/no-array-index-key */
+import React, { FC, useCallback, useMemo } from 'react';
 import RadioButton from '@/ui/RadioButton';
 import clsx from 'clsx';
+import classes from './RadioForm.module.scss';
 
 type IProps = {
     onChange: Function;
     name: string;
-    answers?: string[];
+    answersAmount: number;
+    value: number | undefined;
+    options: string[];
 }
 
 type ButtonType = {
@@ -14,52 +17,68 @@ type ButtonType = {
   size: string;
 }
 
-const RadioForm: FC<IProps> = ({ name, onChange, answers }) => {
-  const buttonArray: ButtonType[] = [
-    {
-      color: 'darkgreen',
-      size: 'largest',
-    },
-    {
-      color: 'green',
-      size: 'large',
-    },
-    {
-      color: 'yellow',
-      size: 'small',
-    },
-    {
-      color: 'orange',
-      size: 'small',
-    }, 
-    {
-      color: 'red',
-      size: 'large',
-    },
-    {
-      color: 'darkred',
-      size: 'largest',
-    },
+const RadioForm: FC<IProps> = ({
+  name, onChange, answersAmount, value, options,
+}) => {
+  const COLORS = [
+    'darkgreen',
+    'green',
+    'yellow',
+    'orange',
+    'red',
+    'darkred',
+  ];
+  const SIZES = [
+    'largest',
+    'large',
+    'small',
   ];
 
-  const answerClass = answers ? classes.hasAnswerLabel : ''
+  const itemsConfig = useMemo<ButtonType[]>(() => {
+    if (answersAmount === 4) {
+      return [
+        { color: COLORS[1], size: SIZES[0] },
+        { color: COLORS[2], size: SIZES[1] },
+        { color: COLORS[3], size: SIZES[2] },
+        { color: COLORS[4], size: SIZES[3] },
+      ];
+    }
+    if (answersAmount === 6) {
+      return [
+        { color: COLORS[0], size: SIZES[0] },
+        { color: COLORS[1], size: SIZES[1] },
+        { color: COLORS[2], size: SIZES[2] },
+        { color: COLORS[3], size: SIZES[2] },
+        { color: COLORS[4], size: SIZES[1] },
+        { color: COLORS[5], size: SIZES[0] },
+      ];
+    }
+    return new Array(answersAmount).fill({ color: COLORS[1], size: SIZES[1] });
+  }, [COLORS, SIZES, answersAmount]);
+
+  const handleOnChange = useCallback((value: number) => () => {
+    onChange(value);
+  }, [onChange]);
 
   return (
-    /*
-    ~Связь кнопок - одно и то же name у тех, что должны быть связаны
-    ~Нажатие на кнопку = нажатие на label - соответствующий id = соответствующий htmlFor
-    */
-    <form className={`${classes.formQuestion} ${answerClass}`}>
+    <form className={clsx(classes.formQuestion, options.length ? classes.formHasAnswer : '')}>
       {
-        buttonArray.map((button, buttonIndex) => (
+        itemsConfig.map((button, buttonIndex) => (
           <RadioButton
             name={name}
-            className={clsx(classes.item, classes[button.color], classes[button.size])}
+            className={
+              clsx(
+                classes.item,
+                classes[button.color],
+                classes[button.size],
+                options.length ? classes.itemHasAnswer : '',
+              )
+            }
             id={`${name}_${buttonIndex}`}
-            answer={answers && answers[buttonIndex] ? answers[buttonIndex] : undefined}
-            value={buttonIndex + 1}
-            key={buttonIndex}
-            onChange={onChange}
+            answer={options && options[buttonIndex] ? options[buttonIndex] : undefined}
+            checked={value === buttonIndex + 1}
+            key={`${name}_button_${buttonIndex}`}
+            onChange={handleOnChange(buttonIndex + 1)}
           />
         ))
       }

@@ -1,34 +1,42 @@
+/* eslint-disable react/no-array-index-key */
 import RadioForm from '@/ui/RadioForm';
-import React, { FC, useCallback, useState } from 'react';
-import QUESTIONS from '@/constants/questions';
+import React, {
+  FC, useCallback, useEffect, useState,
+} from 'react';
+import TEST, { TestType } from '@/constants/test_1';
 import classes from './Test.module.scss';
 
 interface IProps {
   onSubmit: Function;
 }
 
-interface Answer {
-  answer: number;
-  id: string;
-}
-
 const Test: FC<IProps> = ({ onSubmit }) => {
-  const temp: Answer[] = QUESTIONS.map((question) => ({
-    id: question.id,
-    answer: 0,
-  }));
+  const [testConfig, setTestConfig] = useState<TestType | undefined>();
+  const [answers, setAnswers] = useState<object>({});
 
-  const [answers, setAnswers] = useState(temp);
+  useEffect(() => {
+    setTestConfig(TEST);
+  }, [testConfig]);
 
-  const onChange = (index: number) => (value: number) => {
-    const newArr: Answer[] = [...answers];
-    newArr[index].answer = value;
+  useEffect(() => {
+    const answersJSON = localStorage.getItem('answers');
+    setAnswers(answersJSON ? JSON.parse(answersJSON) : {});
+  }, []);
 
-    setAnswers(newArr);
-  };
+  useEffect(() => {
+    localStorage.setItem('answers', JSON.stringify(answers));
+  }, [answers]);
 
-  const handleOnChange = useCallback(onChange, [setAnswers, answers]);
-  const handleIsTestValid = useCallback(isTestValid, [setAnswers, answers]);
+  const handleOnChange = useCallback((index: number) => (value: number) => {
+    setAnswers({
+      ...answers,
+      [index]: value,
+    });
+  }, [answers, setAnswers]);
+
+  const handleOnSubmit = useCallback(() => {
+    onSubmit();
+  }, [onSubmit]);
 
   return (
     <div>
@@ -72,12 +80,14 @@ const Test: FC<IProps> = ({ onSubmit }) => {
         <div className="title" />
         <div className={classes.content}>
           {
-            QUESTIONS.map((question, questionIndex) => (
-              <div className={classes.question} key={question.id}>
+            testConfig?.questions.map((question, questionIndex) => (
+              <div className={classes.question} key={`question_${questionIndex}`}>
                 <span>{question.text}</span>
                 <RadioForm
-                  name={question.id}
-                  answers={question.answers}
+                  name={`question_${questionIndex}`}
+                  value={answers[questionIndex]}
+                  answersAmount={testConfig.answersAmount}
+                  options={question.options || []}
                   onChange={handleOnChange(questionIndex)}
                 />
               </div>
@@ -88,8 +98,8 @@ const Test: FC<IProps> = ({ onSubmit }) => {
           <div className={classes.nextButton}>
             <button
               type="button"
-              disabled={handleIsTestValid()}
-              onClick={() => onSubmit(answers)}
+              // disabled={Object.keys(answers).length !== TEST.questions.length}
+              onClick={handleOnSubmit}
             >
               Завершить тестирование
             </button>
@@ -98,10 +108,6 @@ const Test: FC<IProps> = ({ onSubmit }) => {
       </div>
     </div>
   );
-
-  function isTestValid() {
-    return answers.some((el: Answer) => el.answer === 0);
-  }
 };
 
 export default Test;
