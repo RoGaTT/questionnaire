@@ -3,22 +3,26 @@
 import React, { FC } from 'react';
 
 type IProps = {
-  name: string;
   id: string;
   className?: string;
   onChange: Function;
   checked: boolean;
-  answer?: string;
+  label?: string;
 }
 
 const RadioButton: FC<IProps> = ({
-  className, id, name, onChange, answer, checked,
+  className, id, onChange, label, checked,
 }) => (
   <div className={className}>
     <label htmlFor={id}>
-      <input onChange={() => onChange()} checked={checked} id={id} type="radio" name={name} />
+      <input
+        onChange={() => onChange()}
+        checked={checked}
+        id={id}
+        type="radio"
+      />
       <span />
-      {answer && <p>{ answer }</p>}
+      {label && <p>{ label }</p>}
     </label>
   </div>
 );

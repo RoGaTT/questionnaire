@@ -1,4 +1,6 @@
 /* eslint-disable max-len */
+import { sendAnswers } from '@/api/test';
+import { ISendTestAnswers, TestNameEnum } from '@/types/test';
 import React, { FC, useCallback, useState } from 'react';
 import classes from './Home.module.scss';
 
@@ -15,11 +17,22 @@ enum ScreenEnum {
 const Home: FC = () => {
   const [screenName, setScreen] = useState<ScreenEnum>(ScreenEnum.Form);
 
-  const handleOnSubmit = useCallback((answers: object) => {
-    const userDataJSON = localStorage.getItem('userData');
+  const handleOnSubmit = useCallback(async () => {
+    // const userDataJSON = localStorage.getItem('userData');
     const answersJSON = localStorage.getItem('answers');
-    console.log(userDataJSON, answersJSON);
-    setScreen(ScreenEnum.Final);
+
+    try {
+      if (!answersJSON) throw new Error('Invalid JSON');
+      const answers: ISendTestAnswers['answers'] = JSON.parse(answersJSON);
+      await sendAnswers({
+        // eslint-disable-next-line @typescript-eslint/camelcase
+        questionnary_name: TestNameEnum.Zaslon,
+        answers,
+      });
+      setScreen(ScreenEnum.Final);
+    } catch (e) {
+      console.log(e);
+    }
   }, []);
 
   return (

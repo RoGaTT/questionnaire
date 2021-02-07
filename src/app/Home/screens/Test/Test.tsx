@@ -3,7 +3,12 @@ import RadioForm from '@/ui/RadioForm';
 import React, {
   FC, useCallback, useEffect, useState,
 } from 'react';
-import TEST, { TestType } from '@/constants/test_1';
+import { getTest } from '@/api/test';
+import {
+  ISendTestAnswers, TestNameEnum, TestType,
+} from '@/types/test';
+// import ZASLON from '@/constants/zaslon.json';
+// import OMO from '@/constants/omo.json';
 import classes from './Test.module.scss';
 
 interface IProps {
@@ -12,11 +17,15 @@ interface IProps {
 
 const Test: FC<IProps> = ({ onSubmit }) => {
   const [testConfig, setTestConfig] = useState<TestType | undefined>();
-  const [answers, setAnswers] = useState<object>({});
+  const [answers, setAnswers] = useState<ISendTestAnswers['answers']>({});
 
   useEffect(() => {
-    setTestConfig(TEST);
-  }, [testConfig]);
+    getTest(TestNameEnum.Zaslon).then((data) => {
+      console.log(data);
+      setTestConfig(data);
+    });
+    // setTestConfig(ZASLON as TestType);
+  }, []);
 
   useEffect(() => {
     const answersJSON = localStorage.getItem('answers');
@@ -27,10 +36,10 @@ const Test: FC<IProps> = ({ onSubmit }) => {
     localStorage.setItem('answers', JSON.stringify(answers));
   }, [answers]);
 
-  const handleOnChange = useCallback((index: number) => (value: number) => {
+  const handleOnChange = useCallback((id: string) => (value: string) => {
     setAnswers({
       ...answers,
-      [index]: value,
+      [id]: value,
     });
   }, [answers, setAnswers]);
 
@@ -80,15 +89,15 @@ const Test: FC<IProps> = ({ onSubmit }) => {
         <div className="title" />
         <div className={classes.content}>
           {
-            testConfig?.questions.map((question, questionIndex) => (
-              <div className={classes.question} key={`question_${questionIndex}`}>
+            testConfig?.questions.map((question) => (
+              <div className={classes.question} key={question.id}>
                 <span>{question.text}</span>
                 <RadioForm
-                  name={`question_${questionIndex}`}
-                  value={answers[questionIndex]}
-                  answersAmount={testConfig.answersAmount}
-                  options={question.options || []}
-                  onChange={handleOnChange(questionIndex)}
+                  name={`question_${question.id}`}
+                  answersAmount={question.answersAmount}
+                  answers={question.answers || []}
+                  onChange={handleOnChange(question.id)}
+                  value={answers[question.id]}
                 />
               </div>
             ))

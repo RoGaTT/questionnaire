@@ -7,9 +7,9 @@ import classes from './RadioForm.module.scss';
 type IProps = {
     onChange: Function;
     name: string;
-    answersAmount: number;
-    value: number | undefined;
-    options: string[];
+    value: string | undefined;
+    answersAmount?: number;
+    answers?: string[];
 }
 
 type ButtonType = {
@@ -18,7 +18,7 @@ type ButtonType = {
 }
 
 const RadioForm: FC<IProps> = ({
-  name, onChange, answersAmount, value, options,
+  name, onChange, answersAmount, answers, value,
 }) => {
   const COLORS = [
     'darkgreen',
@@ -35,7 +35,8 @@ const RadioForm: FC<IProps> = ({
   ];
 
   const itemsConfig = useMemo<ButtonType[]>(() => {
-    if (answersAmount === 4) {
+    const itemsAmount = answersAmount || answers?.length || 0;
+    if (itemsAmount === 4) {
       return [
         { color: COLORS[1], size: SIZES[0] },
         { color: COLORS[2], size: SIZES[1] },
@@ -43,7 +44,7 @@ const RadioForm: FC<IProps> = ({
         { color: COLORS[4], size: SIZES[3] },
       ];
     }
-    if (answersAmount === 6) {
+    if (itemsAmount === 6) {
       return [
         { color: COLORS[0], size: SIZES[0] },
         { color: COLORS[1], size: SIZES[1] },
@@ -53,34 +54,39 @@ const RadioForm: FC<IProps> = ({
         { color: COLORS[5], size: SIZES[0] },
       ];
     }
-    return new Array(answersAmount).fill({ color: COLORS[1], size: SIZES[1] });
-  }, [COLORS, SIZES, answersAmount]);
+    return new Array(itemsAmount).fill({ color: COLORS[1], size: SIZES[1] });
+  }, [COLORS, SIZES, answers, answersAmount]);
 
-  const handleOnChange = useCallback((value: number) => () => {
+  const handleOnChange = useCallback((value: string) => () => {
     onChange(value);
   }, [onChange]);
 
   return (
-    <form className={clsx(classes.formQuestion, options.length ? classes.formHasAnswer : '')}>
+    <form className={
+      clsx(classes.formQuestion, answers?.length ? classes.formHasAnswer : '')
+    }
+    >
       {
-        itemsConfig.map((button, buttonIndex) => (
-          <RadioButton
-            name={name}
-            className={
-              clsx(
-                classes.item,
-                classes[button.color],
-                classes[button.size],
-                options.length ? classes.itemHasAnswer : '',
-              )
-            }
-            id={`${name}_${buttonIndex}`}
-            answer={options && options[buttonIndex] ? options[buttonIndex] : undefined}
-            checked={value === buttonIndex + 1}
-            key={`${name}_button_${buttonIndex}`}
-            onChange={handleOnChange(buttonIndex + 1)}
-          />
-        ))
+        itemsConfig.map((button, buttonIndex) => {
+          const answer = `${buttonIndex + 1}`;
+          return (
+            <RadioButton
+              className={
+                clsx(
+                  classes.item,
+                  classes[button.color],
+                  classes[button.size],
+                  answers?.length ? classes.itemHasAnswer : '',
+                )
+              }
+              checked={value === answer}
+              onChange={handleOnChange(answer)}
+              label={answers?.[+answer - 1]}
+              id={`${name}_button_${buttonIndex}`}
+              key={`${name}_button_${buttonIndex}`}
+            />
+          );
+        })
       }
     </form>
   );
