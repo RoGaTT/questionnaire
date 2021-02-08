@@ -20,7 +20,15 @@ export type TestType = {
   name: TestNameEnum;
 }
 
+export type ProfileData = {
+  firstname: string;
+  lastname: string;
+  middlename: string;
+  email: string;
+}
+
 export type ISendTestAnswers = {
   questionnary_name: TestNameEnum;
+  personal_data: ProfileData;
   answers: { [id: string]: string | undefined };
 }

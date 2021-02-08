@@ -1,14 +1,8 @@
+import { ProfileData } from '@/types/test';
 import React, {
   FC, useRef, useCallback, useState, useEffect,
 } from 'react';
 import classes from './Form.module.scss';
-
-interface DataInterface {
-  name: string;
-  lastname: string;
-  middlename: string;
-  email: string;
-}
 
 interface IProps {
   goNext: Function;
@@ -17,8 +11,8 @@ interface IProps {
 const Form: FC<IProps> = ({ goNext }) => {
   const formEl = useRef<HTMLFormElement>(null);
 
-  const [data, setData] = useState<DataInterface>({
-    name: '',
+  const [data, setData] = useState<ProfileData>({
+    firstname: '',
     lastname: '',
     middlename: '',
     email: '',
@@ -49,7 +43,7 @@ const Form: FC<IProps> = ({ goNext }) => {
         </label>
         <label className={classes.field}>
           <span>Имя</span>
-          <input type="text" required value={data.name} onChange={handleOnChange('name')} />
+          <input type="text" required value={data.firstname} onChange={handleOnChange('firstname')} />
         </label>
         <label className={classes.field}>
           <span>Отчество</span>
@@ -89,7 +83,7 @@ const Form: FC<IProps> = ({ goNext }) => {
         ...data,
         [field]: e.target.value,
       });
-      validate();
+      // validate();
     };
   }
 

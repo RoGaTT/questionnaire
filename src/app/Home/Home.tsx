@@ -18,18 +18,25 @@ const Home: FC = () => {
   const [screenName, setScreen] = useState<ScreenEnum>(ScreenEnum.Form);
 
   const handleOnSubmit = useCallback(async () => {
-    // const userDataJSON = localStorage.getItem('userData');
+    const userDataJSON = localStorage.getItem('userData');
     const answersJSON = localStorage.getItem('answers');
 
     try {
+      if (!userDataJSON) throw new Error('Invalid JSON');
       if (!answersJSON) throw new Error('Invalid JSON');
+
+      const userData: ISendTestAnswers['personal_data'] = JSON.parse(userDataJSON);
       const answers: ISendTestAnswers['answers'] = JSON.parse(answersJSON);
       await sendAnswers({
         // eslint-disable-next-line @typescript-eslint/camelcase
         questionnary_name: TestNameEnum.Zaslon,
+        // eslint-disable-next-line @typescript-eslint/camelcase
+        personal_data: userData,
         answers,
       });
       setScreen(ScreenEnum.Final);
+      localStorage.removeItem('userData');
+      localStorage.removeItem('answers');
     } catch (e) {
       console.log(e);
     }
